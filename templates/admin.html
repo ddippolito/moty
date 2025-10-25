@@ -36,6 +36,18 @@
             gap: 15px;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 8px;
+        }
+
         h1 {
             color: #667eea;
             font-size: 2em;
@@ -246,7 +258,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🛡️ Admin Dashboard</h1>
+            <div class="header-left">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </div>
+                <h1>🛡️ Admin Dashboard</h1>
+            </div>
             <div class="header-actions">
                 <a href="/" class="btn btn-secondary">← Voting Page</a>
                 <a href="/results" class="btn btn-secondary">📊 Results</a>
