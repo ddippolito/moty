@@ -11,6 +11,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 DATABASE = 'votes.db'
 ADMIN_PASSWORD = 'moty2025'
 MODS = ['Nonno', 'Felon', 'Pez', 'Jensi', 'Marco']
+OUTPUT_DIR = 'output'
 
 def get_db():
     """Get database connection"""
@@ -47,6 +48,36 @@ def init_db():
 
     db.commit()
     db.close()
+
+def get_vote_counts():
+    """Get vote counts for all mods"""
+    db = get_db()
+    results = {}
+
+    for mod in MODS:
+        count = db.execute(
+            'SELECT COALESCE(SUM(vote_weight), 0) as total FROM votes WHERE voted_for = ?',
+            (mod,)
+        ).fetchone()
+        results[mod] = count['total']
+
+    db.close()
+    return results
+
+def update_obs_files():
+    """Update OBS text files with current vote counts"""
+    # Create output directory if it doesn't exist
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+    # Get current vote counts
+    counts = get_vote_counts()
+
+    # Write each mod's count to a separate file
+    for mod in MODS:
+        filename = os.path.join(OUTPUT_DIR, f'{mod.lower()}_votes.txt')
+        with open(filename, 'w') as f:
+            f.write(str(counts[mod]))
 
 # Initialize database on startup
 init_db()
@@ -106,6 +137,10 @@ def vote():
             (username, voted_for, vote_weight)
         )
         db.commit()
+
+        # Update OBS text files
+        update_obs_files()
+
         flash(f'Thank you for voting, {username}! Your vote for {voted_for} has been recorded.', 'success')
     except sqlite3.Error as e:
         flash('An error occurred. Please try again.', 'error')
@@ -114,6 +149,27 @@ def vote():
         db.close()
 
     return redirect(url_for('index'))
+
+@app.route('/results')
+def results():
+    """Display live voting results"""
+    vote_counts = get_vote_counts()
+
+    # Calculate total votes and find the leader
+    total_votes = sum(vote_counts.values())
+    max_votes = max(vote_counts.values()) if vote_counts else 0
+
+    # Get number of voters
+    db = get_db()
+    voter_count = db.execute('SELECT COUNT(*) as count FROM votes').fetchone()['count']
+    db.close()
+
+    return render_template('results.html',
+                         vote_counts=vote_counts,
+                         total_votes=total_votes,
+                         voter_count=voter_count,
+                         max_votes=max_votes,
+                         mods=MODS)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

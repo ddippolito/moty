@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Mod of the Year 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-card.leader {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .mod-name {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .leader .mod-name::after {
+            content: " 👑";
+        }
+
+        .vote-count {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .leader .vote-count {
+            color: #fff;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .leader .progress-bar-container {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+        }
+
+        .leader .progress-bar {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .percentage {
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .leader .percentage {
+            color: #764ba2;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .stats {
+                gap: 20px;
+            }
+
+            .mod-name {
+                font-size: 1.2em;
+            }
+
+            .vote-count {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+    <script>
+        // Auto-refresh every 10 seconds
+        setTimeout(function(){
+            location.reload();
+        }, 10000);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Live Results</h1>
+            <p style="color: #666; margin-top: 10px;">Mod of the Year 2025</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">{{ total_votes }}</div>
+                    <div class="stat-label">Total Votes</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{ voter_count }}</div>
+                    <div class="stat-label">Voters</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-grid">
+            {% for mod in mods %}
+            <div class="result-card {% if vote_counts[mod] == max_votes and max_votes > 0 %}leader{% endif %}">
+                <div class="result-header">
+                    <div class="mod-name">{{ mod }}</div>
+                    <div class="vote-count">{{ vote_counts[mod] }}</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {% if total_votes > 0 %}{{ (vote_counts[mod] / total_votes * 100)|round(1) }}%{% else %}0%{% endif %}">
+                        <span class="percentage">
+                            {% if total_votes > 0 %}
+                                {{ (vote_counts[mod] / total_votes * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn btn-primary">Back to Voting</a>
+            <button onclick="location.reload()" class="btn btn-secondary">Refresh Results</button>
+        </div>
+
+        <p style="text-align: center; color: white; margin-top: 20px; font-size: 0.9em;">
+            Page auto-refreshes every 10 seconds
+        </p>
+    </div>
+</body>
+</html>
