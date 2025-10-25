@@ -388,6 +388,38 @@
             padding: 0 5px;
         }
 
+        .search-form {
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            white-space: nowrap;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 15px;
@@ -483,6 +515,20 @@
                 padding: 6px 10px;
                 font-size: 0.85em;
                 min-width: 36px;
+            }
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .search-btn {
+                width: 100%;
             }
         }
 
@@ -596,18 +642,30 @@
                 <span class="count-badge">{{ total_users }} total</span>
             </div>
 
+            <!-- Search Form -->
+            <form method="GET" action="{{ url_for('admin') }}" class="search-form">
+                <div class="search-container">
+                    <input type="text" name="search" value="{{ search }}" placeholder="Search by username..." class="search-input">
+                    <input type="hidden" name="tier" value="{{ tier_filter }}">
+                    <button type="submit" class="btn btn-primary search-btn">🔍 Search</button>
+                    {% if search %}
+                    <a href="{{ url_for('admin', tier=tier_filter) }}" class="btn btn-secondary">✕ Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+
             <!-- Tier Filter -->
             <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                <a href="{{ url_for('admin', tier='all') }}" class="filter-btn {{ 'active' if tier_filter == 'all' else '' }}">
+                <a href="{{ url_for('admin', tier='all', search=search) }}" class="filter-btn {{ 'active' if tier_filter == 'all' else '' }}">
                     All ({{ total_users }})
                 </a>
-                <a href="{{ url_for('admin', tier='follower') }}" class="filter-btn {{ 'active' if tier_filter == 'follower' else '' }}">
+                <a href="{{ url_for('admin', tier='follower', search=search) }}" class="filter-btn {{ 'active' if tier_filter == 'follower' else '' }}">
                     Followers ({{ tier_counts['follower'] }})
                 </a>
-                <a href="{{ url_for('admin', tier='sub') }}" class="filter-btn {{ 'active' if tier_filter == 'sub' else '' }}">
+                <a href="{{ url_for('admin', tier='sub', search=search) }}" class="filter-btn {{ 'active' if tier_filter == 'sub' else '' }}">
                     Subscribers ({{ tier_counts['sub'] }})
                 </a>
-                <a href="{{ url_for('admin', tier='vip') }}" class="filter-btn {{ 'active' if tier_filter == 'vip' else '' }}">
+                <a href="{{ url_for('admin', tier='vip', search=search) }}" class="filter-btn {{ 'active' if tier_filter == 'vip' else '' }}">
                     VIPs ({{ tier_counts['vip'] }})
                 </a>
             </div>
@@ -647,7 +705,7 @@
             {% if total_pages > 1 %}
             <div class="pagination">
                 {% if page > 1 %}
-                <a href="{{ url_for('admin', page=page-1, tier=tier_filter) }}" class="pagination-btn">← Previous</a>
+                <a href="{{ url_for('admin', page=page-1, tier=tier_filter, search=search) }}" class="pagination-btn">← Previous</a>
                 {% else %}
                 <span class="pagination-btn disabled">← Previous</span>
                 {% endif %}
@@ -657,7 +715,7 @@
                         {% if p == page %}
                             <span class="pagination-page active">{{ p }}</span>
                         {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
-                            <a href="{{ url_for('admin', page=p, tier=tier_filter) }}" class="pagination-page">{{ p }}</a>
+                            <a href="{{ url_for('admin', page=p, tier=tier_filter, search=search) }}" class="pagination-page">{{ p }}</a>
                         {% elif p == page - 3 or p == page + 3 %}
                             <span class="pagination-ellipsis">...</span>
                         {% endif %}
@@ -665,7 +723,7 @@
                 </div>
 
                 {% if page < total_pages %}
-                <a href="{{ url_for('admin', page=page+1, tier=tier_filter) }}" class="pagination-btn">Next →</a>
+                <a href="{{ url_for('admin', page=page+1, tier=tier_filter, search=search) }}" class="pagination-btn">Next →</a>
                 {% else %}
                 <span class="pagination-btn disabled">Next →</span>
                 {% endif %}
@@ -674,10 +732,14 @@
             {% else %}
             <div class="empty-state">
                 <div class="empty-state-icon">👥</div>
-                <p>No verified users {{ 'in this tier' if tier_filter != 'all' else 'in the database' }}</p>
-                {% if tier_filter != 'all' %}
+                {% if search %}
+                <p>No users found matching "{{ search }}"</p>
+                <a href="{{ url_for('admin', tier=tier_filter) }}" style="margin-top: 10px; display: inline-block; color: #667eea;">Clear search</a>
+                {% elif tier_filter != 'all' %}
+                <p>No verified users in this tier</p>
                 <a href="{{ url_for('admin', tier='all') }}" style="margin-top: 10px; display: inline-block; color: #667eea;">View all users</a>
                 {% else %}
+                <p>No verified users in the database</p>
                 <p style="margin-top: 10px; font-size: 0.9em;">Run <code>python populate_users.py your_users.csv</code> to add users</p>
                 {% endif %}
             </div>

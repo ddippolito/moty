@@ -188,20 +188,29 @@ def admin():
     if not session.get('admin_authenticated'):
         return render_template('admin_login.html')
 
-    # Pagination and sorting parameters
+    # Pagination, filtering, and search parameters
     page = request.args.get('page', 1, type=int)
     tier_filter = request.args.get('tier', 'all')
+    search = request.args.get('search', '').strip()
     per_page = 50
 
     db = get_db()
 
-    # Build query for verified users with optional tier filter
+    # Build query for verified users with optional tier filter and search
     query = 'SELECT id, username, tier, added_timestamp FROM verified_users'
     params = []
+    where_clauses = []
 
     if tier_filter != 'all':
-        query += ' WHERE tier = ?'
+        where_clauses.append('tier = ?')
         params.append(tier_filter)
+
+    if search:
+        where_clauses.append('username LIKE ?')
+        params.append(f'%{search}%')
+
+    if where_clauses:
+        query += ' WHERE ' + ' AND '.join(where_clauses)
 
     # Get total count for pagination
     count_query = query.replace('SELECT id, username, tier, added_timestamp', 'SELECT COUNT(*)')
@@ -238,7 +247,8 @@ def admin():
                          total_pages=total_pages,
                          total_users=total_users,
                          tier_filter=tier_filter,
-                         tier_counts=tier_counts)
+                         tier_counts=tier_counts,
+                         search=search)
 
 @app.route('/admin/reset', methods=['POST'])
 def admin_reset():
