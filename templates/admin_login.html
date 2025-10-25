@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mod of the Year 2025</title>
+    <title>Admin Login - MOTY 2025</title>
     <style>
         * {
             margin: 0;
@@ -26,22 +26,15 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
-            max-width: 500px;
+            max-width: 400px;
             width: 100%;
         }
 
         h1 {
             color: #667eea;
             text-align: center;
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
             margin-bottom: 30px;
-            font-size: 0.9em;
+            font-size: 2em;
         }
 
         .alert {
@@ -49,12 +42,6 @@
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.9em;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .alert-error {
@@ -74,7 +61,7 @@
             margin-bottom: 8px;
         }
 
-        input[type="text"] {
+        input[type="password"] {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -83,55 +70,9 @@
             transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus {
+        input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
-        }
-
-        .hint {
-            font-size: 0.85em;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .mods-grid {
-            display: grid;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .mod-option {
-            position: relative;
-        }
-
-        .mod-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-        }
-
-        .mod-option label {
-            display: block;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .mod-option input[type="radio"]:checked + label {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-            transform: scale(1.02);
-        }
-
-        .mod-option label:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
         }
 
         button {
@@ -152,40 +93,23 @@
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        .link-button {
+        .back-link {
             display: block;
             text-align: center;
             margin-top: 20px;
             color: #667eea;
             text-decoration: none;
             font-weight: 600;
-            transition: color 0.2s;
         }
 
-        .link-button:hover {
-            color: #764ba2;
+        .back-link:hover {
             text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏆 Mod of the Year 2025</h1>
-        <p class="subtitle">Vote for your favorite moderator!</p>
+        <h1>🔐 Admin Login</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -197,29 +121,16 @@
             {% endif %}
         {% endwith %}
 
-        <form method="POST" action="/vote">
+        <form method="POST" action="/admin">
             <div class="form-group">
-                <label for="username">Your Twitch Username</label>
-                <input type="text" id="username" name="username" required placeholder="Enter your Twitch username">
-                <div class="hint">Enter your Twitch username exactly as it appears on Twitch</div>
+                <label for="password">Admin Password</label>
+                <input type="password" id="password" name="password" required autofocus>
             </div>
 
-            <div class="form-group">
-                <label>Select Your Favorite Mod</label>
-                <div class="mods-grid">
-                    {% for mod in mods %}
-                    <div class="mod-option">
-                        <input type="radio" id="mod_{{ loop.index }}" name="mod" value="{{ mod }}" required>
-                        <label for="mod_{{ loop.index }}">{{ mod }}</label>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <button type="submit">Cast Your Vote</button>
+            <button type="submit">Login</button>
         </form>
 
-        <a href="/results" class="link-button">View Live Results →</a>
+        <a href="/" class="back-link">← Back to Voting</a>
     </div>
 </body>
 </html>

@@ -171,6 +171,66 @@ def results():
                          max_votes=max_votes,
                          mods=MODS)
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    """Admin panel - login and dashboard"""
+    if request.method == 'POST':
+        # Handle login
+        password = request.form.get('password', '')
+        if password == ADMIN_PASSWORD:
+            session['admin_authenticated'] = True
+            return redirect(url_for('admin'))
+        else:
+            flash('Invalid password', 'error')
+            return redirect(url_for('admin'))
+
+    # Check if authenticated
+    if not session.get('admin_authenticated'):
+        return render_template('admin_login.html')
+
+    # Get all verified users
+    db = get_db()
+    verified_users = db.execute(
+        'SELECT id, username, tier, added_timestamp FROM verified_users ORDER BY username'
+    ).fetchall()
+
+    # Get all votes
+    votes = db.execute(
+        'SELECT id, username, voted_for, vote_weight, timestamp FROM votes ORDER BY timestamp DESC'
+    ).fetchall()
+
+    db.close()
+
+    return render_template('admin.html',
+                         verified_users=verified_users,
+                         votes=votes,
+                         vote_counts=get_vote_counts())
+
+@app.route('/admin/reset', methods=['POST'])
+def admin_reset():
+    """Reset all votes"""
+    if not session.get('admin_authenticated'):
+        flash('Unauthorized', 'error')
+        return redirect(url_for('admin'))
+
+    db = get_db()
+    db.execute('DELETE FROM votes')
+    db.commit()
+    db.close()
+
+    # Update OBS files to show 0 votes
+    update_obs_files()
+
+    flash('All votes have been reset!', 'success')
+    return redirect(url_for('admin'))
+
+@app.route('/admin/logout')
+def admin_logout():
+    """Logout from admin panel"""
+    session.pop('admin_authenticated', None)
+    flash('Logged out successfully', 'success')
+    return redirect(url_for('admin'))
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
