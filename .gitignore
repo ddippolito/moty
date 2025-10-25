@@ -30,7 +30,9 @@ Thumbs.db
 
 # Project specific
 *.db
+!votes.db
 *.csv
+!test_users.csv
 output/
 
 # Environment
