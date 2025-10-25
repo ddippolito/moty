@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Results - Mod of the Year 2025</title>
     <style>
         * {
@@ -344,9 +346,17 @@
             transform: translateY(-1px);
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
             .header {
-                padding: 30px 20px;
+                padding: 25px 20px;
+            }
+
+            .logo img {
+                max-width: 100px;
             }
 
             h1 {
@@ -354,6 +364,56 @@
             }
 
             .stats {
+                gap: 25px;
+            }
+
+            .stat-number {
+                font-size: 1.8em;
+            }
+
+            .result-card {
+                padding: 20px;
+            }
+
+            .mod-name {
+                font-size: 1.3em;
+            }
+
+            .vote-count {
+                font-size: 1.6em;
+            }
+
+            .progress-bar-container {
+                height: 25px;
+            }
+
+            .percentage {
+                font-size: 0.85em;
+                padding-right: 10px;
+            }
+
+            .actions {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.95em;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .stats {
+                flex-direction: row;
                 gap: 20px;
             }
 
@@ -362,7 +422,7 @@
             }
 
             .vote-count {
-                font-size: 1.5em;
+                font-size: 1.4em;
             }
         }
     </style>

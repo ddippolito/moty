@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Mod of the Year 2025</title>
     <style>
         * {
@@ -242,12 +244,48 @@
         }
 
         @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
             .container {
                 padding: 30px 20px;
             }
 
+            .logo img {
+                max-width: 120px;
+            }
+
             h1 {
-                font-size: 1.5em;
+                font-size: 1.8em;
+            }
+
+            .subtitle {
+                font-size: 0.95em;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            input[type="text"] {
+                padding: 14px 15px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .mod-option label {
+                padding: 14px 18px;
+                font-size: 1em;
+            }
+
+            button {
+                padding: 16px;
+                font-size: 1.05em;
+            }
+
+            .link-button {
+                margin-top: 15px;
+                font-size: 0.95em;
             }
         }
     </style>
