@@ -1,0 +1,59 @@
+Create a Python Flask voting website for a Twitch "Mod of the Year" contest with these exact requirements:
+
+REQUIREMENTS:
+
+Voting System:
+5 mod options: Nonno, Felon, Pez, Jensi, Marco
+Users enter their Twitch username
+Checkbox: "I'm a Subscriber or VIP" (gives 2 votes instead of 1)
+One username can vote only once (or twice if sub/VIP)
+Store votes in SQLite database
+
+Pages Needed:
+/ - Main voting page with clean, gaming-themed design
+/results - Live results page showing vote counts for each mod
+/reset - Admin page (password protected) to reset all votes
+
+Features:
+After voting, show confirmation message
+Prevent duplicate votes from same username
+Display current vote totals on results page
+Create individual text files in /output/ folder:
+nonno_votes.txt
+felon_votes.txt
+pez_votes.txt
+jensi_votes.txt
+marco_votes.txt
+Each text file contains just the number (for OBS display)
+
+Technical Requirements:
+Python Flask framework
+SQLite database
+Mobile responsive design
+Purple/gaming theme colors
+Ready to deploy on Railway.app (include requirements.txt and proper configuration)
+Port should be configurable via environment variable
+
+Database Schema:
+Store: username, voted_for (mod name), is_sub_vip (boolean), timestamp
+Prevent duplicate usernames from voting again
+
+Security:
+Basic input validation
+SQL injection prevention
+Case-insensitive username checking
+Admin reset page password: "moty2025"
+
+File Structure:
+app.py (main application)
+requirements.txt (Flask, etc.)
+templates/index.html (voting page)
+templates/results.html (results display)
+Create /output/ folder for text files
+README.md with setup and Railway deployment instructions
+
+Make it clean, simple, and ready to deploy. Include all necessary files and clear instructions.
+﻿
+Galudir
+galudir
+ 

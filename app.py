@@ -1,0 +1,120 @@
+import os
+import sqlite3
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import check_password_hash, generate_password_hash
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Configuration
+DATABASE = 'votes.db'
+ADMIN_PASSWORD = 'moty2025'
+MODS = ['Nonno', 'Felon', 'Pez', 'Jensi', 'Marco']
+
+def get_db():
+    """Get database connection"""
+    db = sqlite3.connect(DATABASE)
+    db.row_factory = sqlite3.Row
+    return db
+
+def init_db():
+    """Initialize database tables"""
+    db = get_db()
+
+    # Create verified_users table
+    db.execute('''
+        CREATE TABLE IF NOT EXISTS verified_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL COLLATE NOCASE,
+            tier TEXT NOT NULL,
+            added_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(username COLLATE NOCASE)
+        )
+    ''')
+
+    # Create votes table
+    db.execute('''
+        CREATE TABLE IF NOT EXISTS votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL COLLATE NOCASE,
+            voted_for TEXT NOT NULL,
+            vote_weight INTEGER NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(username COLLATE NOCASE)
+        )
+    ''')
+
+    db.commit()
+    db.close()
+
+# Initialize database on startup
+init_db()
+
+@app.route('/')
+def index():
+    """Main voting page"""
+    return render_template('index.html', mods=MODS)
+
+@app.route('/vote', methods=['POST'])
+def vote():
+    """Process vote submission"""
+    username = request.form.get('username', '').strip()
+    voted_for = request.form.get('mod')
+
+    # Validation
+    if not username:
+        flash('Please enter your Twitch username.', 'error')
+        return redirect(url_for('index'))
+
+    if voted_for not in MODS:
+        flash('Invalid mod selection.', 'error')
+        return redirect(url_for('index'))
+
+    db = get_db()
+
+    # Check if username is verified
+    verified_user = db.execute(
+        'SELECT tier FROM verified_users WHERE LOWER(username) = LOWER(?)',
+        (username,)
+    ).fetchone()
+
+    if not verified_user:
+        flash(f'Username "{username}" not recognized. Please enter your exact Twitch username.', 'error')
+        db.close()
+        return redirect(url_for('index'))
+
+    # Check if user already voted
+    existing_vote = db.execute(
+        'SELECT id FROM votes WHERE LOWER(username) = LOWER(?)',
+        (username,)
+    ).fetchone()
+
+    if existing_vote:
+        flash(f'You have already voted!', 'error')
+        db.close()
+        return redirect(url_for('index'))
+
+    # Calculate vote weight based on tier
+    tier = verified_user['tier'].lower()
+    vote_weight = 2 if tier in ['sub', 'vip'] else 1
+
+    # Record vote
+    try:
+        db.execute(
+            'INSERT INTO votes (username, voted_for, vote_weight) VALUES (?, ?, ?)',
+            (username, voted_for, vote_weight)
+        )
+        db.commit()
+        flash(f'Thank you for voting, {username}! Your vote for {voted_for} has been recorded.', 'success')
+    except sqlite3.Error as e:
+        flash('An error occurred. Please try again.', 'error')
+        print(f"Database error: {e}")
+    finally:
+        db.close()
+
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
