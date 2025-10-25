@@ -188,11 +188,40 @@ def admin():
     if not session.get('admin_authenticated'):
         return render_template('admin_login.html')
 
-    # Get all verified users
+    # Pagination and sorting parameters
+    page = request.args.get('page', 1, type=int)
+    tier_filter = request.args.get('tier', 'all')
+    per_page = 50
+
     db = get_db()
-    verified_users = db.execute(
-        'SELECT id, username, tier, added_timestamp FROM verified_users ORDER BY username'
-    ).fetchall()
+
+    # Build query for verified users with optional tier filter
+    query = 'SELECT id, username, tier, added_timestamp FROM verified_users'
+    params = []
+
+    if tier_filter != 'all':
+        query += ' WHERE tier = ?'
+        params.append(tier_filter)
+
+    # Get total count for pagination
+    count_query = query.replace('SELECT id, username, tier, added_timestamp', 'SELECT COUNT(*)')
+    total_users = db.execute(count_query, params).fetchone()[0]
+    total_pages = (total_users + per_page - 1) // per_page  # Ceiling division
+
+    # Ensure page is within valid range
+    page = max(1, min(page, total_pages)) if total_pages > 0 else 1
+
+    # Add sorting and pagination
+    query += ' ORDER BY tier, username LIMIT ? OFFSET ?'
+    params.extend([per_page, (page - 1) * per_page])
+
+    verified_users = db.execute(query, params).fetchall()
+
+    # Get tier counts for filter badges
+    tier_counts = {}
+    for tier in ['follower', 'sub', 'vip']:
+        count = db.execute('SELECT COUNT(*) FROM verified_users WHERE tier = ?', (tier,)).fetchone()[0]
+        tier_counts[tier] = count
 
     # Get all votes
     votes = db.execute(
@@ -204,7 +233,12 @@ def admin():
     return render_template('admin.html',
                          verified_users=verified_users,
                          votes=votes,
-                         vote_counts=get_vote_counts())
+                         vote_counts=get_vote_counts(),
+                         page=page,
+                         total_pages=total_pages,
+                         total_users=total_users,
+                         tier_filter=tier_filter,
+                         tier_counts=tier_counts)
 
 @app.route('/admin/reset', methods=['POST'])
 def admin_reset():

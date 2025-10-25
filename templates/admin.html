@@ -296,6 +296,98 @@
             margin-bottom: 10px;
         }
 
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover:not(.disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn.disabled {
+            border-color: #e0e0e0;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .pagination-pages {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .pagination-page {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .pagination-page:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .pagination-page.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination-ellipsis {
+            color: #999;
+            padding: 0 5px;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 15px;
@@ -367,6 +459,30 @@
             .tier-badge {
                 padding: 3px 10px;
                 font-size: 0.8em;
+            }
+
+            .filter-btn {
+                font-size: 0.85em;
+                padding: 6px 12px;
+            }
+
+            .pagination {
+                gap: 8px;
+            }
+
+            .pagination-btn {
+                padding: 8px 16px;
+                font-size: 0.85em;
+            }
+
+            .pagination-pages {
+                gap: 3px;
+            }
+
+            .pagination-page {
+                padding: 6px 10px;
+                font-size: 0.85em;
+                min-width: 36px;
             }
         }
 
@@ -477,10 +593,31 @@
         <div class="section">
             <div class="section-header">
                 <h2>✓ Verified Users</h2>
-                <span class="count-badge">{{ verified_users|length }} users</span>
+                <span class="count-badge">{{ total_users }} total</span>
+            </div>
+
+            <!-- Tier Filter -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <a href="{{ url_for('admin', tier='all') }}" class="filter-btn {{ 'active' if tier_filter == 'all' else '' }}">
+                    All ({{ total_users }})
+                </a>
+                <a href="{{ url_for('admin', tier='follower') }}" class="filter-btn {{ 'active' if tier_filter == 'follower' else '' }}">
+                    Followers ({{ tier_counts['follower'] }})
+                </a>
+                <a href="{{ url_for('admin', tier='sub') }}" class="filter-btn {{ 'active' if tier_filter == 'sub' else '' }}">
+                    Subscribers ({{ tier_counts['sub'] }})
+                </a>
+                <a href="{{ url_for('admin', tier='vip') }}" class="filter-btn {{ 'active' if tier_filter == 'vip' else '' }}">
+                    VIPs ({{ tier_counts['vip'] }})
+                </a>
             </div>
 
             {% if verified_users %}
+            <!-- Showing range -->
+            <div style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
+                Showing {{ ((page - 1) * 50) + 1 }} - {% if page * 50 < total_users %}{{ page * 50 }}{% else %}{{ total_users }}{% endif %} of {{ total_users }} users
+            </div>
+
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -505,11 +642,44 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <div class="pagination">
+                {% if page > 1 %}
+                <a href="{{ url_for('admin', page=page-1, tier=tier_filter) }}" class="pagination-btn">← Previous</a>
+                {% else %}
+                <span class="pagination-btn disabled">← Previous</span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                            <span class="pagination-page active">{{ p }}</span>
+                        {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+                            <a href="{{ url_for('admin', page=p, tier=tier_filter) }}" class="pagination-page">{{ p }}</a>
+                        {% elif p == page - 3 or p == page + 3 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if page < total_pages %}
+                <a href="{{ url_for('admin', page=page+1, tier=tier_filter) }}" class="pagination-btn">Next →</a>
+                {% else %}
+                <span class="pagination-btn disabled">Next →</span>
+                {% endif %}
+            </div>
+            {% endif %}
             {% else %}
             <div class="empty-state">
                 <div class="empty-state-icon">👥</div>
-                <p>No verified users in the database</p>
+                <p>No verified users {{ 'in this tier' if tier_filter != 'all' else 'in the database' }}</p>
+                {% if tier_filter != 'all' %}
+                <a href="{{ url_for('admin', tier='all') }}" style="margin-top: 10px; display: inline-block; color: #667eea;">View all users</a>
+                {% else %}
                 <p style="margin-top: 10px; font-size: 0.9em;">Run <code>python populate_users.py your_users.csv</code> to add users</p>
+                {% endif %}
             </div>
             {% endif %}
         </div>
