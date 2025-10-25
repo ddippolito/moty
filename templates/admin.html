@@ -79,6 +79,11 @@
             flex-wrap: wrap;
         }
 
+        @keyframes buttonPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -86,9 +91,29 @@
             font-size: 0.9em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 200px;
+            height: 200px;
         }
 
         .btn-primary {
@@ -97,8 +122,12 @@
         }
 
         .btn-danger {
-            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             color: white;
+        }
+
+        .btn-danger:hover {
+            animation: buttonPulse 0.6s ease-in-out;
         }
 
         .btn-secondary {
@@ -107,8 +136,12 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
 
         .alert {
@@ -214,8 +247,14 @@
             border-bottom: 1px solid #e0e0e0;
         }
 
-        tr:hover {
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
             background: #f8f9fa;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .tier-badge {
