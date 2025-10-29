@@ -566,6 +566,7 @@
             <div class="header-actions">
                 <a href="/" class="btn btn-secondary">← Voting Page</a>
                 <a href="/results" class="btn btn-secondary">📊 Results</a>
+                <a href="/admin/export" class="btn btn-primary">📥 Export Votes</a>
                 <a href="/admin/logout" class="btn btn-secondary">Logout</a>
             </div>
         </div>
@@ -641,6 +642,20 @@
                 <h2>✓ Verified Users</h2>
                 <span class="count-badge">{{ total_users }} total</span>
             </div>
+
+            <!-- Upload Users Form -->
+            <form method="POST" action="{{ url_for('admin_upload_users') }}" enctype="multipart/form-data" style="margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <label for="file" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Upload Users CSV</label>
+                        <input type="file" id="file" name="file" accept=".csv" required style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; width: 100%; font-family: 'Inter', sans-serif;">
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+                            CSV format: username,tier (e.g., "viewer1,follower")
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 20px;">📤 Upload & Update Users</button>
+                </div>
+            </form>
 
             <!-- Search Form -->
             <form method="GET" action="{{ url_for('admin') }}" class="search-form">

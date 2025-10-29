@@ -1,7 +1,9 @@
 import os
 import sqlite3
+import csv
+import io
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -171,6 +173,11 @@ def results():
                          max_votes=max_votes,
                          mods=MODS)
 
+@app.route('/prizes')
+def prizes():
+    """Display prize information page"""
+    return render_template('prizes.html')
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     """Admin panel - login and dashboard"""
@@ -273,6 +280,113 @@ def admin_logout():
     """Logout from admin panel"""
     session.pop('admin_authenticated', None)
     flash('Logged out successfully', 'success')
+    return redirect(url_for('admin'))
+
+@app.route('/admin/export')
+def admin_export():
+    """Export all votes to CSV"""
+    if not session.get('admin_authenticated'):
+        flash('Unauthorized', 'error')
+        return redirect(url_for('admin'))
+
+    db = get_db()
+    votes = db.execute(
+        'SELECT username, voted_for, vote_weight, timestamp FROM votes ORDER BY timestamp DESC'
+    ).fetchall()
+    db.close()
+
+    # Create CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Username', 'Voted For', 'Vote Weight', 'Timestamp'])
+
+    for vote in votes:
+        writer.writerow([vote['username'], vote['voted_for'], vote['vote_weight'], vote['timestamp']])
+
+    # Create response with CSV file
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename=votes_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+
+    return response
+
+@app.route('/admin/upload-users', methods=['POST'])
+def admin_upload_users():
+    """Upload CSV file to update verified users"""
+    if not session.get('admin_authenticated'):
+        flash('Unauthorized', 'error')
+        return redirect(url_for('admin'))
+
+    if 'file' not in request.files:
+        flash('No file uploaded', 'error')
+        return redirect(url_for('admin'))
+
+    file = request.files['file']
+
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('admin'))
+
+    if not file.filename.endswith('.csv'):
+        flash('Please upload a CSV file', 'error')
+        return redirect(url_for('admin'))
+
+    try:
+        # Read CSV file
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.reader(stream)
+
+        # Skip header row if it exists
+        header = next(csv_reader)
+        if header[0].lower() not in ['username', 'user']:
+            # No header, reset reader
+            stream.seek(0)
+            csv_reader = csv.reader(stream)
+
+        db = get_db()
+        added_count = 0
+        updated_count = 0
+
+        for row in csv_reader:
+            if len(row) < 2:
+                continue
+
+            username = row[0].strip()
+            tier = row[1].strip().lower()
+
+            if not username or tier not in ['follower', 'sub', 'vip']:
+                continue
+
+            # Check if user already exists
+            existing = db.execute(
+                'SELECT id FROM verified_users WHERE LOWER(username) = LOWER(?)',
+                (username,)
+            ).fetchone()
+
+            if existing:
+                # Update existing user
+                db.execute(
+                    'UPDATE verified_users SET tier = ? WHERE LOWER(username) = LOWER(?)',
+                    (tier, username)
+                )
+                updated_count += 1
+            else:
+                # Insert new user
+                db.execute(
+                    'INSERT INTO verified_users (username, tier) VALUES (?, ?)',
+                    (username, tier)
+                )
+                added_count += 1
+
+        db.commit()
+        db.close()
+
+        flash(f'Successfully processed! Added {added_count} new users, updated {updated_count} existing users.', 'success')
+
+    except Exception as e:
+        flash(f'Error processing file: {str(e)}', 'error')
+        print(f"Error: {e}")
+
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':

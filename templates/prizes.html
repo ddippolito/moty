@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Prizes - Mod of the Year 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            max-width: 150px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .trophy {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 2.2em;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1em;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+        }
+
+        .prizes-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .prize-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: scaleIn 0.6s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prize-card:nth-child(1) { animation-delay: 0.1s; }
+        .prize-card:nth-child(2) { animation-delay: 0.2s; }
+        .prize-card:nth-child(3) { animation-delay: 0.3s; }
+        .prize-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .prize-card::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .prize-card:hover::before {
+            width: 500px;
+            height: 500px;
+        }
+
+        .prize-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .prize-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .prize-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+            position: relative;
+        }
+
+        .prize-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #667eea 50%, transparent 100%);
+            margin: 30px 0;
+            opacity: 0.3;
+        }
+
+        .footer-text {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+
+        @keyframes buttonPress {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+
+        .link-button {
+            display: block;
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .link-button:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .link-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .link-button:active {
+            transform: translateY(-1px) scale(0.98);
+            animation: buttonPress 0.3s ease;
+        }
+
+        .secondary-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .secondary-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            .logo img {
+                max-width: 120px;
+            }
+
+            .trophy {
+                font-size: 3em;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .subtitle {
+                font-size: 0.95em;
+                margin-bottom: 30px;
+            }
+
+            .prizes-list {
+                grid-template-columns: 1fr;
+            }
+
+            .prize-card {
+                padding: 20px;
+            }
+
+            .prize-icon {
+                font-size: 2em;
+            }
+
+            .prize-title {
+                font-size: 1.2em;
+            }
+
+            .prize-description {
+                font-size: 0.9em;
+            }
+
+            .link-button {
+                padding: 16px;
+                font-size: 1.05em;
+            }
+
+            .secondary-link {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+        </div>
+
+        <div class="trophy">🏆</div>
+
+        <h1>Winner's Prizes</h1>
+        <p class="subtitle">What awaits the Mod of the Year 2025?</p>
+
+        <div class="prizes-list">
+            <div class="prize-card">
+                <span class="prize-icon">🎨</span>
+                <div class="prize-title">Custom Discord Role</div>
+                <div class="prize-description">
+                    A special role in the Discord server with your own color of choice. Stand out from the crowd with your personalized flair!
+                </div>
+            </div>
+
+            <div class="prize-card">
+                <span class="prize-icon">📺</span>
+                <div class="prize-title">Legendary Twitch Panel</div>
+                <div class="prize-description">
+                    A dedicated Twitch panel in the channel info singing your praises in the most overly elogiative way possible. Your legendary status immortalized for all viewers to see!
+                </div>
+            </div>
+
+            <div class="prize-card">
+                <span class="prize-icon">😎</span>
+                <div class="prize-title">Personalized Twitch Emote</div>
+                <div class="prize-description">
+                    Your very own custom Twitch emote designed just for you. Let the chat spam your face (or meme) with pride!
+                </div>
+            </div>
+
+            <div class="prize-card">
+                <span class="prize-icon">🎮</span>
+                <div class="prize-title">"Mod's Choice" Stream</div>
+                <div class="prize-description">
+                    One special stream where YOU control the content. Pick what game gets played, what challenge gets attempted, or what chaos ensues. Your wish is our command!
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="footer-text">
+            May the best mod win! 🎉
+        </p>
+
+        <a href="/" class="link-button">Cast Your Vote →</a>
+        <a href="/results" class="secondary-link">View Live Results</a>
+    </div>
+</body>
+</html>
