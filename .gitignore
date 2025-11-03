@@ -34,6 +34,7 @@ Thumbs.db
 *.csv
 !test_users.csv
 output/
+import_votes.py
 
 # Environment
 .env
